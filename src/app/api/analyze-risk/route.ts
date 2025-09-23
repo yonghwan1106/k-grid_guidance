@@ -1,0 +1,104 @@
+import { NextRequest, NextResponse } from 'next/server'
+import Anthropic from '@anthropic-ai/sdk'
+
+const anthropic = new Anthropic({
+  apiKey: process.env.CLAUDE_API_KEY,
+})
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const { imageBase64, category, location, description } = body
+
+    // Claude API를 통한 이미지 분석
+    const message = await anthropic.messages.create({
+      model: 'claude-3-sonnet-20240229',
+      max_tokens: 1000,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              source: {
+                type: 'base64',
+                media_type: 'image/jpeg',
+                data: imageBase64,
+              },
+            },
+            {
+              type: 'text',
+              text: `전력설비 안전 위험도를 분석해주세요.
+
+위치: ${location.address}
+분류: ${category}
+추가 설명: ${description || '없음'}
+
+다음 형식으로 JSON 응답을 생성해주세요:
+{
+  "riskScore": 1-10 사이의 숫자,
+  "urgency": "low" | "medium" | "high",
+  "description": "위험 상황에 대한 상세한 설명",
+  "recommendedAction": "권장 조치사항",
+  "confidence": 0-1 사이의 신뢰도
+}
+
+분석 기준:
+- 1-3점: 낮은 위험 (정기 점검 시 처리)
+- 4-6점: 보통 위험 (1주일 내 점검 필요)
+- 7-10점: 높은 위험 (즉시 조치 필요)
+
+전력설비의 기울어짐, 파손, 수목 접촉, 절연체 손상 등을 중점적으로 분석해주세요.`
+            }
+          ]
+        }
+      ]
+    })
+
+    // Claude 응답에서 JSON 추출
+    const responseText = message.content[0].type === 'text' ? message.content[0].text : ''
+
+    // JSON 파싱 시도
+    let analysisResult
+    try {
+      // JSON 블록 추출 (```json ... ``` 형태)
+      const jsonMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/)
+      if (jsonMatch) {
+        analysisResult = JSON.parse(jsonMatch[1])
+      } else {
+        // 직접 JSON 파싱 시도
+        analysisResult = JSON.parse(responseText)
+      }
+    } catch (parseError) {
+      // 파싱 실패 시 기본값 사용
+      console.error('JSON 파싱 실패:', parseError)
+      analysisResult = {
+        riskScore: 5,
+        urgency: 'medium',
+        description: '이미지 분석이 완료되었으나 상세 분석 결과를 파싱하는 중 오류가 발생했습니다.',
+        recommendedAction: '전문가의 현장 점검을 권장합니다.',
+        confidence: 0.7
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: analysisResult
+    })
+
+  } catch (error) {
+    console.error('Claude API 호출 실패:', error)
+
+    return NextResponse.json({
+      success: false,
+      error: 'AI 분석 중 오류가 발생했습니다.',
+      data: {
+        riskScore: 5,
+        urgency: 'medium',
+        description: 'AI 분석 서비스에 일시적인 문제가 발생했습니다.',
+        recommendedAction: '잠시 후 다시 시도하거나 직접 신고해주세요.',
+        confidence: 0.5
+      }
+    }, { status: 500 })
+  }
+}

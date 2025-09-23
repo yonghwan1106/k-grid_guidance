@@ -1,0 +1,22 @@
+{
+  "name": "K-그리드 가디언즈",
+  "short_name": "K-Grid",
+  "description": "게이미피케이션 기반 시민참여 전력망 안전·효율 플랫폼",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
