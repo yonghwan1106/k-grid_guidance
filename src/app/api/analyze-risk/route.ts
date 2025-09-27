@@ -7,8 +7,25 @@ const anthropic = new Anthropic({
 
 export async function POST(request: NextRequest) {
   try {
+    // 환경변수 체크
+    if (!process.env.CLAUDE_API_KEY) {
+      console.error('CLAUDE_API_KEY environment variable is not set')
+      return NextResponse.json(
+        { error: 'Claude API key is not configured' },
+        { status: 500 }
+      )
+    }
+
     const body = await request.json()
     const { imageBase64, category, location, description } = body
+
+    console.log('Request received:', {
+      category,
+      location,
+      description,
+      hasImage: !!imageBase64,
+      imageLength: imageBase64?.length
+    })
 
     // Claude API를 통한 이미지 분석
     const message = await anthropic.messages.create({
@@ -109,6 +126,12 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Claude API 호출 실패:', error)
+    console.error('Error details:', {
+      name: error.name,
+      message: error.message,
+      status: error.status,
+      code: error.code
+    })
 
     return NextResponse.json({
       success: false,
