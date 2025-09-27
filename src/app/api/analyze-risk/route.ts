@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     })
 
     // 이미지 타입 감지
-    let mediaType = 'image/jpeg' // 기본값
+    let mediaType: 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp' = 'image/jpeg' // 기본값
     if (imageBase64) {
       // Base64 헤더를 통한 이미지 타입 감지
       if (imageBase64.startsWith('/9j/')) mediaType = 'image/jpeg'
@@ -139,10 +139,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Claude API 호출 실패:', error)
     console.error('Error details:', {
-      name: error.name,
-      message: error.message,
-      status: error.status,
-      code: error.code
+      name: (error as any)?.name,
+      message: (error as any)?.message,
+      status: (error as any)?.status,
+      code: (error as any)?.code
     })
 
     return NextResponse.json({
