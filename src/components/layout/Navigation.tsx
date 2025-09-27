@@ -9,7 +9,6 @@ import {
   ShieldCheckIcon,
   BoltIcon,
   UsersIcon,
-  UserCircleIcon,
   Bars3Icon,
   XMarkIcon
 } from '@heroicons/react/24/outline'
@@ -17,17 +16,12 @@ import {
   HomeIcon as HomeSolidIcon,
   ShieldCheckIcon as ShieldSolidIcon,
   BoltIcon as BoltSolidIcon,
-  UsersIcon as UsersSolidIcon,
-  UserCircleIcon as UserSolidIcon
+  UsersIcon as UsersSolidIcon
 } from '@heroicons/react/24/solid'
-import Button from '@/components/ui/Button'
-import PointsDisplay from '@/components/gamification/PointsDisplay'
-import { useUserStore } from '@/stores/userStore'
 
 export default function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const pathname = usePathname()
-  const { user } = useUserStore()
 
   const navItems = [
     {
@@ -35,6 +29,12 @@ export default function Navigation() {
       href: '/',
       icon: HomeIcon,
       activeIcon: HomeSolidIcon
+    },
+    {
+      name: '소개',
+      href: '/intro',
+      icon: () => <span className="text-lg">📋</span>,
+      activeIcon: () => <span className="text-lg">📋</span>
     },
     {
       name: '그리드 워치',
@@ -59,12 +59,6 @@ export default function Navigation() {
       href: '/community',
       icon: UsersIcon,
       activeIcon: UsersSolidIcon
-    },
-    {
-      name: '프로필',
-      href: '/profile',
-      icon: UserCircleIcon,
-      activeIcon: UserSolidIcon
     }
   ]
 
@@ -82,13 +76,18 @@ export default function Navigation() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* 로고 */}
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+            <Link href="/" className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">K</span>
               </div>
-              <span className="text-xl font-bold text-gray-900">
-                그리드 가디언즈
-              </span>
+              <div className="flex flex-col">
+                <span className="text-xl font-bold text-gray-900">
+                  그리드 가디언즈
+                </span>
+                <span className="text-xs text-orange-600 font-semibold -mt-1">
+                  KDN 파워업 챌린지 2025
+                </span>
+              </div>
             </Link>
 
             {/* 네비게이션 메뉴 */}
@@ -114,35 +113,9 @@ export default function Navigation() {
               })}
             </div>
 
-            {/* 사용자 정보 */}
+            {/* 데모 정보 */}
             <div className="flex items-center space-x-4">
-              {user ? (
-                <>
-                  <PointsDisplay points={user.points} size="sm" />
-                  <Link href="/profile">
-                    <div className="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-50">
-                      {user.avatarUrl ? (
-                        <img
-                          src={user.avatarUrl}
-                          alt={user.name}
-                          className="w-8 h-8 rounded-full"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
-                          <span className="text-white text-sm font-bold">
-                            {user.name.charAt(0)}
-                          </span>
-                        </div>
-                      )}
-                      <span className="font-medium text-gray-900">
-                        {user.name}
-                      </span>
-                    </div>
-                  </Link>
-                </>
-              ) : (
-                <Button size="sm">로그인</Button>
-              )}
+              <span className="text-sm text-gray-500 font-medium">프로토타입 데모</span>
             </div>
           </div>
         </div>
@@ -154,16 +127,21 @@ export default function Navigation() {
         <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
           <div className="flex items-center justify-between px-4 h-14">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="w-6 h-6 bg-primary-600 rounded flex items-center justify-center">
+              <div className="w-6 h-6 bg-gradient-to-r from-blue-600 to-purple-600 rounded flex items-center justify-center">
                 <span className="text-white font-bold text-xs">K</span>
               </div>
-              <span className="text-lg font-bold text-gray-900">
-                K-그리드
-              </span>
+              <div className="flex flex-col">
+                <span className="text-lg font-bold text-gray-900">
+                  K-그리드
+                </span>
+                <span className="text-xs text-orange-600 font-semibold -mt-1">
+                  KDN 2025
+                </span>
+              </div>
             </Link>
 
             <div className="flex items-center space-x-2">
-              {user && <PointsDisplay points={user.points} size="sm" />}
+              <span className="text-xs text-gray-500">데모</span>
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
                 className="p-2 text-gray-600"
@@ -175,7 +153,7 @@ export default function Navigation() {
         </header>
 
         {/* 하단 탭 네비게이션 */}
-        <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200">
+        <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white bg-opacity-90 backdrop-blur-sm border-t border-gray-200 shadow-lg">
           <div className="grid grid-cols-6 h-16">
             {navItems.map((item) => {
               const active = isActive(item.href)
@@ -185,10 +163,13 @@ export default function Navigation() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`flex flex-col items-center justify-center space-y-1 ${
-                    active ? 'text-primary-600' : 'text-gray-600'
+                  className={`flex flex-col items-center justify-center space-y-1 relative transition-all duration-200 ${
+                    active ? 'text-blue-600' : 'text-gray-600'
                   }`}
                 >
+                  {active && (
+                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
+                  )}
                   {typeof Icon === 'function' ? (
                     <Icon />
                   ) : (
@@ -253,33 +234,21 @@ export default function Navigation() {
                   )
                 })}
 
-                {user && (
-                  <div className="pt-4 border-t border-gray-200">
-                    <div className="flex items-center space-x-3 px-4 py-3">
-                      {user.avatarUrl ? (
-                        <img
-                          src={user.avatarUrl}
-                          alt={user.name}
-                          className="w-10 h-10 rounded-full"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center">
-                          <span className="text-white font-bold">
-                            {user.name.charAt(0)}
-                          </span>
-                        </div>
-                      )}
-                      <div>
-                        <div className="font-semibold text-gray-900">
-                          {user.name}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {user.points.toLocaleString()}P
-                        </div>
+                <div className="pt-4 border-t border-gray-200">
+                  <div className="flex items-center space-x-3 px-4 py-3">
+                    <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">데모</span>
+                    </div>
+                    <div>
+                      <div className="font-semibold text-gray-900">
+                        프로토타입 모드
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        KDN 파워업 챌린지 2025
                       </div>
                     </div>
                   </div>
-                )}
+                </div>
               </div>
             </motion.div>
           </motion.div>

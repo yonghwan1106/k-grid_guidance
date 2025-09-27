@@ -45,9 +45,9 @@ export default function KakaoMap({
       if (window.kakao && window.kakao.maps) {
         setIsLoaded(true)
       } else {
-        // SDK가 로드되지 않았으면 스크립트 동적 로드
+        // SDK가 로드되지 않았으면 스크립트 동적 로드 (services 라이브러리 포함)
         const script = document.createElement('script')
-        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_API_KEY}&autoload=false`
+        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_API_KEY}&autoload=false&libraries=services`
         script.async = true
 
         script.onload = () => {

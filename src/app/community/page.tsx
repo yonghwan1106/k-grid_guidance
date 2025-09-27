@@ -6,8 +6,6 @@ import CommunityFeed from '@/components/community/CommunityFeed'
 import PostDetail from '@/components/community/PostDetail'
 import CreatePostModal from '@/components/community/CreatePostModal'
 import { createPost } from '@/lib/api/community'
-import { useUserStore } from '@/stores/userStore'
-
 type ViewMode = 'feed' | 'detail'
 
 export default function CommunityPage() {
@@ -15,8 +13,6 @@ export default function CommunityPage() {
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const { user } = useUserStore()
 
   const handlePostClick = (postId: string) => {
     setSelectedPostId(postId)
@@ -35,16 +31,13 @@ export default function CommunityPage() {
     imageFiles: File[]
     tags: string[]
   }) => {
-    if (!user) return
-
     setIsSubmitting(true)
     try {
-      const response = await createPost(user.id, postData)
-      if (response.success) {
-        setIsCreateModalOpen(false)
-        // 피드 새로고침을 위해 상태 업데이트 트리거
-        window.location.reload()
-      }
+      // 프로토타입 모드: 포스트 생성 시뮬레이션
+      console.log('포스트 생성:', postData.title)
+      setIsCreateModalOpen(false)
+      // 피드 새로고침을 위해 상태 업데이트 트리거
+      window.location.reload()
     } catch (error) {
       console.error('포스트 생성 실패:', error)
     } finally {
@@ -79,7 +72,7 @@ export default function CommunityPage() {
           {viewMode === 'feed' && (
             <div className="max-w-4xl mx-auto">
               <CommunityFeed
-                currentUser={user || undefined}
+                currentUser={undefined}
                 onCreatePost={() => setIsCreateModalOpen(true)}
                 onPostClick={handlePostClick}
               />
@@ -89,7 +82,7 @@ export default function CommunityPage() {
           {viewMode === 'detail' && selectedPostId && (
             <PostDetail
               postId={selectedPostId}
-              currentUser={user || undefined}
+              currentUser={undefined}
               onBack={handleBackToFeed}
             />
           )}
@@ -103,24 +96,19 @@ export default function CommunityPage() {
           isLoading={isSubmitting}
         />
 
-        {/* 로그인 안내 */}
-        {!user && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="fixed bottom-6 right-6 max-w-sm"
-          >
-            <div className="bg-primary-600 text-white p-4 rounded-lg shadow-lg">
-              <h3 className="font-semibold mb-2">커뮤니티 참여하기</h3>
-              <p className="text-sm opacity-90 mb-3">
-                로그인하고 이웃들과 소통해보세요!
-              </p>
-              <button className="w-full bg-white text-primary-600 px-4 py-2 rounded font-medium hover:bg-gray-100 transition-colors">
-                로그인하기
-              </button>
-            </div>
-          </motion.div>
-        )}
+        {/* 프로토타입 안내 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="fixed bottom-6 right-6 max-w-sm"
+        >
+          <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-4 rounded-lg shadow-lg">
+            <h3 className="font-semibold mb-2">🏆 데모 모드</h3>
+            <p className="text-sm opacity-90">
+              KDN 파워업 챌린지 2025 프로토타입
+            </p>
+          </div>
+        </motion.div>
       </div>
     </div>
   )

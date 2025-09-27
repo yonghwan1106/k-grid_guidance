@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
 
     // Claude API를 통한 이미지 분석
     const message = await anthropic.messages.create({
-      model: 'claude-3-sonnet-20240229',
+      model: 'claude-3-5-sonnet-20241220',
       max_tokens: 1000,
       messages: [
         {
@@ -58,20 +58,41 @@ export async function POST(request: NextRequest) {
     // Claude 응답에서 JSON 추출
     const responseText = message.content[0].type === 'text' ? message.content[0].text : ''
 
+    console.log('Claude 응답 원문:', responseText)
+
     // JSON 파싱 시도
     let analysisResult
     try {
-      // JSON 블록 추출 (```json ... ``` 형태)
+      // 1. JSON 블록 추출 (```json ... ``` 형태)
       const jsonMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/)
       if (jsonMatch) {
-        analysisResult = JSON.parse(jsonMatch[1])
+        console.log('JSON 블록 발견:', jsonMatch[1])
+        analysisResult = JSON.parse(jsonMatch[1].trim())
       } else {
-        // 직접 JSON 파싱 시도
-        analysisResult = JSON.parse(responseText)
+        // 2. 중괄호로 둘러싸인 JSON 찾기
+        const braceMatch = responseText.match(/\{[\s\S]*\}/)
+        if (braceMatch) {
+          console.log('중괄호 JSON 발견:', braceMatch[0])
+          analysisResult = JSON.parse(braceMatch[0])
+        } else {
+          // 3. 직접 JSON 파싱 시도
+          analysisResult = JSON.parse(responseText.trim())
+        }
       }
+
+      // 필수 필드 확인 및 기본값 설정
+      analysisResult = {
+        riskScore: analysisResult.riskScore || 5,
+        urgency: analysisResult.urgency || 'medium',
+        description: analysisResult.description || '전력설비 안전 위험 요소가 분석되었습니다.',
+        recommendedAction: analysisResult.recommendedAction || '전문가의 현장 점검을 권장합니다.',
+        confidence: analysisResult.confidence || 0.7
+      }
+
     } catch (parseError) {
       // 파싱 실패 시 기본값 사용
       console.error('JSON 파싱 실패:', parseError)
+      console.error('응답 내용:', responseText)
       analysisResult = {
         riskScore: 5,
         urgency: 'medium',

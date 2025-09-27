@@ -17,15 +17,15 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
     children,
     ...props
   }, ref) => {
-    const baseStyles = 'rounded-xl border'
+    const baseStyles = 'rounded-2xl border backdrop-blur-sm'
 
     const variants = {
-      default: 'bg-white border-gray-200 shadow-sm',
-      elevated: 'bg-white border-gray-200 shadow-lg',
-      outlined: 'bg-white border-2 border-gray-300',
+      default: 'bg-white border-gray-100 shadow-sm hover:shadow-md transition-all duration-300',
+      elevated: 'bg-white border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300',
+      outlined: 'bg-white bg-opacity-80 border-2 border-gray-200 hover:border-gray-300 transition-all duration-300',
     }
 
-    const hoverStyles = hoverable ? 'hover:shadow-lg transition-shadow duration-300' : ''
+    const hoverStyles = hoverable ? 'hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer' : ''
 
     const cardContent = (
       <div
@@ -66,7 +66,7 @@ const CardHeader = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn('p-6 pb-3', className)}
+      className={cn('p-8 pb-4', className)}
       {...props}
     />
   )
@@ -99,7 +99,7 @@ const CardContent = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn('p-6 pt-0', className)}
+      className={cn('p-8 pt-0', className)}
       {...props}
     />
   )

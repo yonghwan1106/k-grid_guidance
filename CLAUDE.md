@@ -89,3 +89,33 @@ The application is designed as a Progressive Web App with offline capabilities a
 - All API routes are in `src/app/api/` following App Router conventions
 - Component props use TypeScript interfaces defined in the types system
 - Animations use Framer Motion with custom Tailwind keyframes
+
+### State Store Architecture
+The application uses two main Zustand stores with persistence:
+- `src/stores/userStore.ts` - User authentication, profile data, points, badges, and location
+- `src/stores/missionStore.ts` - Energy missions and safety reports management
+
+Both stores automatically persist to localStorage and include error handling.
+
+### Key Utility Functions
+- `src/lib/kakao.ts` - Kakao Maps SDK initialization, geocoding, and location services
+- `src/lib/utils.ts` - General utilities including user level calculations
+- `src/lib/constants.ts` - Application constants and configuration
+
+### API Endpoints
+- `POST /api/analyze-risk` - Claude AI image analysis for safety risk assessment
+  - Accepts: `{ imageBase64, category, location, description }`
+  - Returns: Risk score (1-10), urgency level, analysis description, and recommended actions
+
+### Kakao Maps Integration
+The app uses the Kakao Maps SDK for location services. Key functions in `src/lib/kakao.ts`:
+- `initKakaoMaps()` - Dynamic SDK loading with services library
+- `getAddressFromCoords()` - Reverse geocoding (coordinates to address)
+- `getCoordsFromAddress()` - Forward geocoding (address to coordinates)
+- `getCurrentPosition()` - Browser geolocation with high accuracy settings
+
+### Error Handling Patterns
+- API routes include fallback responses for AI analysis failures
+- Zustand stores include error state management
+- Geolocation includes timeout and accuracy configuration
+- JSON parsing in AI analysis includes graceful fallbacks

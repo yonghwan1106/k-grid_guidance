@@ -7,7 +7,7 @@ import Button from '@/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { SAFETY_CATEGORIES } from '@/lib/constants'
 import { SafetyCategory } from '@/types'
-import { compressImage, getAddressFromCoords } from '@/lib/utils'
+import { compressImage } from '@/lib/utils'
 
 interface ReportFormProps {
   onSubmit: (data: {
@@ -45,8 +45,12 @@ export default function ReportForm({ onSubmit, isLoading = false }: ReportFormPr
     setIsGettingLocation(true)
 
     try {
-      // Kakao 라이브러리에서 현재 위치 가져오기
-      const { getCurrentPosition } = await import('@/lib/kakao')
+      // Kakao SDK 초기화 및 현재 위치 가져오기
+      const { initKakaoMaps, getCurrentPosition, getAddressFromCoords } = await import('@/lib/kakao')
+
+      // SDK 초기화 대기
+      await initKakaoMaps()
+
       const position = await getCurrentPosition()
       const address = await getAddressFromCoords(position.lat, position.lng)
 

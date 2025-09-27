@@ -3,11 +3,16 @@ import './globals.css'
 import Providers from './providers'
 
 export const metadata: Metadata = {
-  title: 'K-그리드 가디언즈',
-  description: '게이미피케이션 기반 시민참여 전력망 안전·효율 플랫폼',
+  title: 'K-그리드 가디언즈 | KDN 파워업 챌린지 2025',
+  description: 'KDN 파워업 챌린지 2025 출품작 - 게이미피케이션 기반 시민참여 전력망 안전·효율 플랫폼',
   manifest: '/manifest.json',
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
   themeColor: '#2563eb',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
 }
 
 export default function RootLayout({

@@ -1,96 +1,36 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { User, Badge } from '@/types'
-import { calculateUserLevel } from '@/lib/utils'
 
-interface UserState {
-  user: User | null
-  isLoading: boolean
-  error: string | null
+// 프로토타입용 단순화된 사용자 상태
+interface DemoUserState {
+  isDemo: boolean
+  currentLocation: { lat: number; lng: number; address: string } | null
 }
 
-interface UserActions {
-  setUser: (user: User) => void
-  updatePoints: (points: number) => void
-  addBadge: (badge: Badge) => void
-  updateLocation: (location: { lat: number; lng: number; address: string }) => void
-  clearUser: () => void
-  setLoading: (loading: boolean) => void
-  setError: (error: string | null) => void
+interface DemoUserActions {
+  setLocation: (location: { lat: number; lng: number; address: string }) => void
+  clearLocation: () => void
 }
 
-type UserStore = UserState & UserActions
+type DemoUserStore = DemoUserState & DemoUserActions
 
-export const useUserStore = create<UserStore>()(
+export const useUserStore = create<DemoUserStore>()(
   persist(
-    (set, get) => ({
-      user: null,
-      isLoading: false,
-      error: null,
+    (set) => ({
+      isDemo: true,
+      currentLocation: null,
 
-      setUser: (user: User) => {
-        set({ user, error: null })
+      setLocation: (location) => {
+        set({ currentLocation: location })
       },
 
-      updatePoints: (points: number) => {
-        const { user } = get()
-        if (!user) return
-
-        const newPoints = user.points + points
-        const newLevel = calculateUserLevel(newPoints).level
-
-        set({
-          user: {
-            ...user,
-            points: newPoints,
-            level: newLevel,
-            lastActiveAt: new Date(),
-          },
-        })
-      },
-
-      addBadge: (badge: Badge) => {
-        const { user } = get()
-        if (!user) return
-
-        const existingBadge = user.badges.find(b => b.id === badge.id)
-        if (existingBadge) return
-
-        set({
-          user: {
-            ...user,
-            badges: [...user.badges, badge],
-          },
-        })
-      },
-
-      updateLocation: (location) => {
-        const { user } = get()
-        if (!user) return
-
-        set({
-          user: {
-            ...user,
-            location,
-          },
-        })
-      },
-
-      clearUser: () => {
-        set({ user: null, error: null })
-      },
-
-      setLoading: (loading: boolean) => {
-        set({ isLoading: loading })
-      },
-
-      setError: (error: string | null) => {
-        set({ error })
+      clearLocation: () => {
+        set({ currentLocation: null })
       },
     }),
     {
-      name: 'user-storage',
-      partialize: (state) => ({ user: state.user }),
+      name: 'demo-user-storage',
+      partialize: (state) => ({ currentLocation: state.currentLocation }),
     }
   )
 )

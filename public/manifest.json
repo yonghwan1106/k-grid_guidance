@@ -1,22 +1,25 @@
 {
-  "name": "K-그리드 가디언즈",
-  "short_name": "K-Grid",
-  "description": "게이미피케이션 기반 시민참여 전력망 안전·효율 플랫폼",
+  "name": "K-그리드 가디언즈 - KDN 파워업 챌린지 2025",
+  "short_name": "K-그리드",
+  "description": "KDN 파워업 챌린지 2025 출품작 - 게이미피케이션 기반 시민참여 전력망 안전·효율 플랫폼",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#2563eb",
   "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "ko",
+  "categories": ["utilities", "productivity", "social"],
   "icons": [
     {
-      "src": "/icon-192x192.png",
+      "src": "/icon-192x192.svg",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/svg+xml"
     },
     {
-      "src": "/icon-512x512.png",
+      "src": "/icon-512x512.svg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/svg+xml"
     }
   ]
 }

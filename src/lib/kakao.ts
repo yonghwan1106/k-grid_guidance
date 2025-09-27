@@ -1,129 +1,57 @@
-// Kakao Maps SDK 초기화
+// Kakao Maps SDK 초기화 (프로토타입 모드)
 export function initKakaoMaps() {
   return new Promise<void>((resolve, reject) => {
     if (typeof window !== 'undefined') {
-      // 이미 로드되어 있으면 바로 resolve
-      if (window.kakao && window.kakao.maps) {
-        resolve()
-        return
-      }
-
-      // 스크립트 동적 로드
-      const script = document.createElement('script')
-      script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_API_KEY}&autoload=false`
-      script.async = true
-
-      script.onload = () => {
-        window.kakao.maps.load(() => {
-          resolve()
-        })
-      }
-
-      script.onerror = () => {
-        reject(new Error('Kakao Maps SDK 로드 실패'))
-      }
-
-      document.head.appendChild(script)
+      // 프로토타입 모드에서는 실제 Kakao Maps 로드 스킵
+      console.log('프로토타입 모드: Kakao Maps 시뮬레이션')
+      resolve()
+      return
     }
+    resolve()
   })
 }
 
-// 좌표를 주소로 변환
+// 좌표를 주소로 변환 (프로토타입 모드)
 export async function getAddressFromCoords(lat: number, lng: number): Promise<string> {
-  try {
-    const response = await fetch(
-      `https://dapi.kakao.com/v2/local/geo/coord2address.json?x=${lng}&y=${lat}`,
-      {
-        headers: {
-          Authorization: `KakaoAK ${process.env.NEXT_PUBLIC_KAKAO_API_KEY}`
-        }
-      }
-    )
+  return new Promise((resolve) => {
+    // 프로토타입 모드: 좌표 기반 서울 지역 주소 생성
+    // 좌표를 기반으로 일관된 지역 선택
+    const districtIndex = Math.floor((lat + lng) * 1000) % 25
+    const districts = ['중구', '종로구', '용산구', '성동구', '광진구', '동대문구', '중랑구', '성북구', '강북구', '도봉구', '노원구', '은평구', '서대문구', '마포구', '양천구', '강서구', '구로구', '금천구', '영등포구', '동작구', '관악구', '서초구', '강남구', '송파구', '강동구']
+    const selectedDistrict = districts[districtIndex]
 
-    if (!response.ok) {
-      throw new Error('Kakao API 호출 실패')
-    }
+    // 좌표를 기반으로 일관된 동/가 선택
+    const dongIndex = Math.floor((lat * lng) * 1000) % 5
+    const dongs = ['1가', '2가', '동', '가', '로']
+    const selectedDong = dongs[dongIndex]
 
-    const data = await response.json()
+    // 상세 주소 생성 (번지수)
+    const buildingNumber = Math.floor((lat * 1000) % 100) + 1
 
-    if (data.documents && data.documents.length > 0) {
-      const address = data.documents[0].address
-      if (address) {
-        return `${address.region_1depth_name} ${address.region_2depth_name} ${address.region_3depth_name}`
-      }
-
-      // road_address가 있으면 사용
-      const roadAddress = data.documents[0].road_address
-      if (roadAddress) {
-        return roadAddress.address_name
-      }
-    }
-
-    throw new Error('주소를 찾을 수 없습니다')
-  } catch (error) {
-    console.error('주소 변환 실패:', error)
-    // 폴백: 좌표 정보 반환
-    return `위도 ${lat.toFixed(6)}, 경도 ${lng.toFixed(6)}`
-  }
+    resolve(`서울특별시 ${selectedDistrict} ${selectedDong} ${buildingNumber}`)
+  })
 }
 
-// 주소를 좌표로 변환
+// 주소를 좌표로 변환 (프로토타입 모드)
 export async function getCoordsFromAddress(address: string): Promise<{ lat: number; lng: number } | null> {
-  try {
-    const response = await fetch(
-      `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(address)}`,
-      {
-        headers: {
-          Authorization: `KakaoAK ${process.env.NEXT_PUBLIC_KAKAO_API_KEY}`
-        }
-      }
-    )
+  return new Promise((resolve) => {
+    // 프로토타입 모드: 서울 시내 랜덤 좌표 생성
+    const lat = 37.5 + Math.random() * 0.1 // 37.5 ~ 37.6
+    const lng = 126.9 + Math.random() * 0.2 // 126.9 ~ 127.1
 
-    if (!response.ok) {
-      throw new Error('Kakao API 호출 실패')
-    }
-
-    const data = await response.json()
-
-    if (data.documents && data.documents.length > 0) {
-      const doc = data.documents[0]
-      return {
-        lat: parseFloat(doc.y),
-        lng: parseFloat(doc.x)
-      }
-    }
-
-    return null
-  } catch (error) {
-    console.error('좌표 변환 실패:', error)
-    return null
-  }
+    resolve({ lat, lng })
+  })
 }
 
-// 현재 위치 가져오기 (브라우저 Geolocation API)
+// 현재 위치 가져오기 (프로토타입 모드)
 export function getCurrentPosition(): Promise<{ lat: number; lng: number }> {
   return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) {
-      reject(new Error('Geolocation이 지원되지 않습니다'))
-      return
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        resolve({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        })
-      },
-      (error) => {
-        reject(error)
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 300000 // 5분
-      }
-    )
+    // 프로토타입 모드: 서울시청 근처 좌표 반환
+    console.log('프로토타입 모드: 가상 위치 정보 사용')
+    resolve({
+      lat: 37.5665 + (Math.random() - 0.5) * 0.01, // 서울시청 근처
+      lng: 126.9780 + (Math.random() - 0.5) * 0.01
+    })
   })
 }
 

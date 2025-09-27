@@ -9,7 +9,6 @@ import MissionDetail from '@/components/energy/MissionDetail'
 import EnergyUsageChart from '@/components/energy/EnergyUsageChart'
 import { getActiveMissions, getEnergyUsage, completeMission, createMission } from '@/lib/api/energy'
 import { EnergyMission, EnergyUsage, MissionType } from '@/types'
-import { useUserStore } from '@/stores/userStore'
 import { useMissionStore } from '@/stores/missionStore'
 import { POINTS } from '@/lib/constants'
 
@@ -22,25 +21,51 @@ export default function EnergyPage() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const [isLoading, setIsLoading] = useState(false)
 
-  const { user, updatePoints } = useUserStore()
   const { activeMissions, setActiveMissions, completeMission: completeMissionInStore } = useMissionStore()
 
   useEffect(() => {
-    if (user) {
-      loadActiveMissions()
-      loadEnergyData()
-    }
-  }, [user])
+    // 프로토타입 모드에서는 기본 데모 데이터 로드
+    loadActiveMissions()
+    loadEnergyData()
+  }, [])
 
   const loadActiveMissions = async () => {
-    if (!user) return
-
     setIsLoading(true)
     try {
-      const response = await getActiveMissions(user.id)
-      if (response.success && response.data) {
-        setActiveMissions(response.data)
-      }
+      // 프로토타입 모드: 데모 데이터 생성
+      const demoMissions: EnergyMission[] = [
+        {
+          id: 'demo-1',
+          userId: 'demo-user',
+          title: '피크시간 사용량 20% 줄이기',
+          description: '오후 2-6시 사이 에어컨 사용량을 평소보다 20% 줄여보세요',
+          type: 'peak_reduction',
+          targetValue: 20,
+          currentValue: 5,
+          unit: '%',
+          startDate: new Date(),
+          endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7일 후
+          status: 'active',
+          rewards: { points: 300 },
+          difficulty: 'easy'
+        },
+        {
+          id: 'demo-2',
+          userId: 'demo-user',
+          title: '대기전력 차단하기',
+          description: '사용하지 않는 전자기기의 플러그를 뽑아 대기전력을 차단하세요',
+          type: 'standby_power',
+          targetValue: 10,
+          currentValue: 7,
+          unit: '개',
+          startDate: new Date(),
+          endDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3일 후
+          status: 'active',
+          rewards: { points: 200 },
+          difficulty: 'easy'
+        }
+      ]
+      setActiveMissions(demoMissions)
     } catch (error) {
       console.error('미션 로드 실패:', error)
     } finally {
@@ -49,16 +74,32 @@ export default function EnergyPage() {
   }
 
   const loadEnergyData = async () => {
-    if (!user) return
-
     const endDate = new Date()
     const startDate = new Date(endDate.getTime() - 30 * 24 * 60 * 60 * 1000) // 30일 전
 
     try {
-      const response = await getEnergyUsage(user.id, startDate, endDate)
-      if (response.success && response.data) {
-        setEnergyData(response.data)
+      // 프로토타입 모드: 데모 에너지 데이터 생성
+      const demoData: EnergyUsage[] = []
+      for (let i = 0; i < 30; i++) {
+        const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000)
+        const hourlyUsage = Array.from({ length: 24 }, (_, hour) => {
+          // 피크시간(14-18시)에 더 높은 사용량
+          const basePeakUsage = hour >= 14 && hour <= 18 ? 2.5 : 1.5
+          const randomVariation = Math.random() * 0.5
+          return basePeakUsage + randomVariation
+        })
+
+        demoData.push({
+          userId: 'demo-user',
+          date,
+          hourlyUsage,
+          totalDaily: hourlyUsage.reduce((sum, usage) => sum + usage, 0),
+          peakUsage: Math.max(...hourlyUsage),
+          peakHours: hourlyUsage.map((usage, hour) => usage === Math.max(...hourlyUsage) ? hour : -1).filter(h => h !== -1),
+          cost: hourlyUsage.reduce((sum, usage) => sum + usage, 0) * 150 // kWh당 150원
+        })
       }
+      setEnergyData(demoData)
     } catch (error) {
       console.error('에너지 데이터 로드 실패:', error)
     }
@@ -67,18 +108,15 @@ export default function EnergyPage() {
   const handleMissionComplete = async (mission: EnergyMission) => {
     setIsLoading(true)
     try {
-      const response = await completeMission(mission.id)
-      if (response.success && response.data) {
-        // 포인트 업데이트
-        updatePoints(response.data.rewards.points)
+      // 프로토타입 모드: 미션 완료 시뮬레이션
+      console.log('미션 완료:', mission.title, '+' + mission.rewards.points + 'P')
 
-        // 스토어에서 미션 완료 처리
-        completeMissionInStore(mission.id)
+      // 스토어에서 미션 완료 처리
+      completeMissionInStore(mission.id)
 
-        // 목록으로 돌아가기
-        setViewMode('missions')
-        setSelectedMission(null)
-      }
+      // 목록으로 돌아가기
+      setViewMode('missions')
+      setSelectedMission(null)
     } catch (error) {
       console.error('미션 완료 실패:', error)
     } finally {
@@ -87,15 +125,68 @@ export default function EnergyPage() {
   }
 
   const handleCreateMission = async (type: MissionType) => {
-    if (!user) return
-
     setIsLoading(true)
     try {
-      const response = await createMission(user.id, type)
-      if (response.success && response.data) {
+      // 프로토타입 모드: 데모 미션 생성 시뮬레이션
+      await new Promise(resolve => setTimeout(resolve, 1000)) // 1초 대기로 로딩 시뮬레이션
+
+      const missionConfigs = {
+        peak_reduction: {
+          title: '피크시간 사용량 20% 줄이기',
+          description: '오후 2-6시 사이 에어컨 사용량을 평소보다 20% 줄여보세요',
+          targetValue: 20,
+          unit: '%',
+          rewards: { points: 300 },
+          difficulty: 'easy' as const
+        },
+        standby_power: {
+          title: '대기전력 차단하기',
+          description: '사용하지 않는 전자기기의 플러그를 뽑아 대기전력을 차단하세요',
+          targetValue: 10,
+          unit: '개',
+          rewards: { points: 200 },
+          difficulty: 'easy' as const
+        },
+        monthly_savings: {
+          title: '월간 에너지 절약',
+          description: '전월 대비 전력 사용량을 줄이세요',
+          targetValue: 15,
+          unit: '%',
+          rewards: { points: 500 },
+          difficulty: 'hard' as const
+        },
+        continuous_participation: {
+          title: '연속 참여',
+          description: '매일 미션에 참여하여 습관을 만드세요',
+          targetValue: 7,
+          unit: '일',
+          rewards: { points: 400 },
+          difficulty: 'medium' as const
+        }
+      }
+
+      const config = missionConfigs[type]
+      if (config) {
+        const newMission: EnergyMission = {
+          id: `demo-new-${Date.now()}`,
+          userId: 'demo-user',
+          title: config.title,
+          description: config.description,
+          type,
+          targetValue: config.targetValue,
+          currentValue: 0,
+          unit: config.unit,
+          startDate: new Date(),
+          endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7일 후
+          status: 'active',
+          rewards: config.rewards,
+          difficulty: config.difficulty
+        }
+
         // 새 미션을 목록에 추가
-        setActiveMissions([...activeMissions, response.data])
+        setActiveMissions([...activeMissions, newMission])
         setViewMode('missions')
+        console.log('새 미션 생성:', newMission.title)
       }
     } catch (error) {
       console.error('미션 생성 실패:', error)
