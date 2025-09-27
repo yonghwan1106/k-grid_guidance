@@ -78,25 +78,39 @@ export default function EnergyPage() {
     const startDate = new Date(endDate.getTime() - 30 * 24 * 60 * 60 * 1000) // 30일 전
 
     try {
-      // 프로토타입 모드: 데모 에너지 데이터 생성
+      // 프로토타입 모드: 실제적인 데모 에너지 데이터 생성
       const demoData: EnergyUsage[] = []
       for (let i = 0; i < 30; i++) {
         const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000)
         const hourlyUsage = Array.from({ length: 24 }, (_, hour) => {
-          // 피크시간(14-18시)에 더 높은 사용량
-          const basePeakUsage = hour >= 14 && hour <= 18 ? 2.5 : 1.5
-          const randomVariation = Math.random() * 0.5
-          return basePeakUsage + randomVariation
+          // 실제적인 시간대별 사용 패턴
+          let baseUsage = 0.5 // 기본 사용량 (밤시간)
+
+          if (hour >= 6 && hour < 9) baseUsage = 2.8 // 아침 시간대
+          else if (hour >= 9 && hour < 12) baseUsage = 1.8 // 오전
+          else if (hour >= 12 && hour < 14) baseUsage = 2.2 // 점심
+          else if (hour >= 14 && hour < 18) baseUsage = 3.2 // 피크시간 (오후)
+          else if (hour >= 18 && hour < 21) baseUsage = 2.9 // 저녁
+          else if (hour >= 21 && hour < 23) baseUsage = 2.1 // 밤
+
+          const randomVariation = (Math.random() - 0.5) * 0.4
+          return Math.max(0.1, baseUsage + randomVariation)
         })
+
+        const totalDaily = hourlyUsage.reduce((sum, usage) => sum + usage, 0)
+        const maxUsage = Math.max(...hourlyUsage)
+        const peakHoursList = hourlyUsage
+          .map((usage, hour) => Math.abs(usage - maxUsage) < 0.1 ? hour : -1)
+          .filter(h => h !== -1)
 
         demoData.push({
           userId: 'demo-user',
           date,
           hourlyUsage,
-          totalDaily: hourlyUsage.reduce((sum, usage) => sum + usage, 0),
-          peakUsage: Math.max(...hourlyUsage),
-          peakHours: hourlyUsage.map((usage, hour) => usage === Math.max(...hourlyUsage) ? hour : -1).filter(h => h !== -1),
-          cost: hourlyUsage.reduce((sum, usage) => sum + usage, 0) * 150 // kWh당 150원
+          totalDaily,
+          peakUsage: maxUsage,
+          peakHours: peakHoursList,
+          cost: totalDaily * 120 // kWh당 120원
         })
       }
       setEnergyData(demoData)
