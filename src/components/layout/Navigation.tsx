@@ -106,7 +106,7 @@ export default function Navigation() {
                         : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                     }`}
                   >
-                    <Icon className="h-5 w-5" />
+                    {React.createElement(Icon, { className: "h-5 w-5" })}
                     <span className="font-medium">{item.name}</span>
                   </Link>
                 )
@@ -173,7 +173,7 @@ export default function Navigation() {
                   {typeof Icon === 'function' ? (
                     <Icon />
                   ) : (
-                    <Icon className="h-5 w-5" />
+                    {React.createElement(Icon, { className: "h-5 w-5" })}
                   )}
                   <span className="text-xs font-medium">{item.name}</span>
                 </Link>

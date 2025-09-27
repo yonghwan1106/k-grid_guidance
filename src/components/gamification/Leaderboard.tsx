@@ -92,7 +92,7 @@ export default function Leaderboard({
           {['national', 'regional', 'local'].map((typeOption) => (
             <Button
               key={typeOption}
-              onClick={() => setSelectedType(typeOption)}
+              onClick={() => setSelectedType(typeOption as any)}
               variant={selectedType === typeOption ? 'primary' : 'secondary'}
               size="sm"
             >
@@ -122,7 +122,7 @@ export default function Leaderboard({
                     {formatNumber(currentUser.points)} 포인트
                   </div>
                 </div>
-                <Badge variant="primary">
+                <Badge variant="default">
                   {calculateUserLevel(currentUser.points).name}
                 </Badge>
               </div>

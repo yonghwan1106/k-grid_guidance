@@ -142,7 +142,7 @@ export default function MissionCard({
             </div>
             <ProgressBar
               value={progress}
-              variant={isCompleted ? 'success' : 'primary'}
+              variant={isCompleted ? 'success' : 'default'}
               size="md"
             />
           </div>

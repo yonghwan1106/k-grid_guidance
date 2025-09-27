@@ -96,7 +96,7 @@ export default function MissionDetail({
                 <p className="text-gray-600 mt-1">{mission.description}</p>
               </div>
               <Badge
-                variant={mission.status === 'completed' ? 'success' : 'primary'}
+                variant={isCompleted ? 'success' : 'default'}
                 size="lg"
               >
                 {mission.status === 'completed' ? '완료' : '진행중'}
@@ -126,7 +126,7 @@ export default function MissionDetail({
               </div>
               <ProgressBar
                 value={progress}
-                variant={isCompleted ? 'success' : 'primary'}
+                variant={isCompleted ? 'success' : 'default'}
                 size="lg"
               />
             </div>

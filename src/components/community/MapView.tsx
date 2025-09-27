@@ -63,7 +63,7 @@ export default function MapView({ onReportClick }: MapViewProps) {
       lng: report.location.lng
     },
     title: `${report.category} - 위험도 ${report.riskScore}/10`,
-    type: report.status === 'resolved' ? 'resolved_issue' : 'safety_report' as const,
+    type: (report.status === 'resolved' ? 'resolved_issue' : 'safety_report') as 'safety_report' | 'resolved_issue' | 'team_mission',
     data: report,
     riskScore: report.riskScore
   }))

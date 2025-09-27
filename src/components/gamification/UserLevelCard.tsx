@@ -87,7 +87,7 @@ export default function UserLevelCard({ user, showDetails = true }: UserLevelCar
               </div>
               <ProgressBar
                 value={progress}
-                variant="primary"
+                variant="default"
                 size="md"
               />
             </div>
