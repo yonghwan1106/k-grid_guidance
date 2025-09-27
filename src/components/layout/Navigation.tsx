@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
@@ -173,7 +173,7 @@ export default function Navigation() {
                   {typeof Icon === 'function' ? (
                     <Icon />
                   ) : (
-                    {React.createElement(Icon, { className: "h-5 w-5" })}
+                    React.createElement(Icon, { className: "h-5 w-5" })
                   )}
                   <span className="text-xs font-medium">{item.name}</span>
                 </Link>
@@ -227,7 +227,7 @@ export default function Navigation() {
                       {typeof Icon === 'function' ? (
                         <Icon />
                       ) : (
-                        <Icon className="h-6 w-6" />
+                        React.createElement(Icon, { className: "h-6 w-6" })
                       )}
                       <span className="font-medium">{item.name}</span>
                     </Link>

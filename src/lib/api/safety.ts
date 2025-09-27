@@ -1,4 +1,5 @@
 import { SafetyReport, SafetyCategory, ApiResponse } from '@/types'
+import { SAFETY_CATEGORIES } from '@/lib/constants'
 
 // Claude API를 통한 위험도 분석
 export async function analyzeRisk(

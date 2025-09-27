@@ -153,7 +153,7 @@ export default function RiskAnalysis({ report }: RiskAnalysisProps) {
                   <div className="w-2 h-2 bg-success-500 rounded-full mr-2" />
                   신고 완료 - {formatDate(report.createdAt)}
                 </div>
-                {report.status !== 'submitted' && (
+                {report.status !== 'received' && (
                   <div className="flex items-center text-xs text-gray-600">
                     <div className="w-2 h-2 bg-primary-500 rounded-full mr-2" />
                     접수 완료 - {formatDate(report.updatedAt)}
