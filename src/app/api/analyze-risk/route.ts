@@ -27,6 +27,18 @@ export async function POST(request: NextRequest) {
       imageLength: imageBase64?.length
     })
 
+    // 이미지 타입 감지
+    let mediaType = 'image/jpeg' // 기본값
+    if (imageBase64) {
+      // Base64 헤더를 통한 이미지 타입 감지
+      if (imageBase64.startsWith('/9j/')) mediaType = 'image/jpeg'
+      else if (imageBase64.startsWith('iVBORw0KGgo')) mediaType = 'image/png'
+      else if (imageBase64.startsWith('R0lGODlh')) mediaType = 'image/gif'
+      else if (imageBase64.startsWith('UklGR')) mediaType = 'image/webp'
+    }
+
+    console.log('Detected media type:', mediaType)
+
     // Claude API를 통한 이미지 분석
     const message = await anthropic.messages.create({
       model: 'claude-3-5-sonnet-20241220',
@@ -39,7 +51,7 @@ export async function POST(request: NextRequest) {
               type: 'image',
               source: {
                 type: 'base64',
-                media_type: 'image/jpeg',
+                media_type: mediaType,
                 data: imageBase64,
               },
             },
