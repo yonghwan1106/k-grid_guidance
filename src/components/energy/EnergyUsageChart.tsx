@@ -16,24 +16,55 @@ export default function EnergyUsageChart({
   selectedDate,
   onDateSelect
 }: EnergyUsageChartProps) {
+  // 데이터가 없으면 기본 데이터 사용
+  const hasData = data && data.length > 0
+
   const today = selectedDate || new Date()
-  const todayData = data.find(d =>
-    d.date.toDateString() === today.toDateString()
-  )
 
-  // 시간대별 데이터 준비
-  const hourlyData = todayData?.hourlyUsage || Array(24).fill(0)
-  const maxUsage = Math.max(...hourlyData)
-  const peakHours = todayData?.peakHours || []
+  // 날짜 비교를 더 안전하게 처리
+  const todayData = hasData ? data.find(d => {
+    const dataDate = new Date(d.date)
+    return dataDate.toDateString() === today.toDateString()
+  }) : null
 
-  // 지난 7일 데이터
-  const weekData = data.slice(-7).map(d => ({
-    date: d.date,
-    usage: d.totalDaily,
-    label: d.date.toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })
-  }))
+  // 데이터가 없으면 가장 최근 데이터 사용
+  const displayData = todayData || (hasData ? data[data.length - 1] : null)
 
-  const maxWeekUsage = Math.max(...weekData.map(d => d.usage))
+  // 시간대별 데이터 준비 - 실제 데이터 또는 기본 데모 데이터
+  const hourlyData = displayData?.hourlyUsage || Array.from({ length: 24 }, (_, hour) => {
+    let baseUsage = 0.5
+    if (hour >= 6 && hour < 9) baseUsage = 2.8
+    else if (hour >= 9 && hour < 12) baseUsage = 1.8
+    else if (hour >= 12 && hour < 14) baseUsage = 2.2
+    else if (hour >= 14 && hour < 18) baseUsage = 3.2
+    else if (hour >= 18 && hour < 21) baseUsage = 2.9
+    else if (hour >= 21 && hour < 23) baseUsage = 2.1
+    return baseUsage + (Math.random() - 0.5) * 0.4
+  })
+
+  const maxUsage = Math.max(...hourlyData, 0.1)
+  const peakHours = displayData?.peakHours || hourlyData
+    .map((usage, hour) => Math.abs(usage - maxUsage) < 0.2 ? hour : -1)
+    .filter(h => h !== -1)
+
+  // 지난 7일 데이터 - 안전하게 처리
+  const weekData = hasData && data.length > 0
+    ? data.slice(-7).map(d => ({
+        date: new Date(d.date),
+        usage: d.totalDaily,
+        label: new Date(d.date).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })
+      }))
+    : Array.from({ length: 7 }, (_, i) => {
+        const date = new Date()
+        date.setDate(date.getDate() - (6 - i))
+        return {
+          date,
+          usage: 45 + Math.random() * 10,
+          label: date.toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })
+        }
+      })
+
+  const maxWeekUsage = Math.max(...weekData.map(d => d.usage), 0.1)
 
   return (
     <div className="space-y-6">
@@ -50,25 +81,25 @@ export default function EnergyUsageChart({
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary-600">
-                  {todayData ? formatEnergy(todayData.totalDaily) : '25.3kWh'}
+                  {displayData ? formatEnergy(displayData.totalDaily) : formatEnergy(hourlyData.reduce((sum, usage) => sum + usage, 0))}
                 </div>
                 <div className="text-sm text-gray-600">총 사용량</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-warning-600">
-                  {todayData ? formatEnergy(todayData.peakUsage) : '3.2kWh'}
+                  {displayData ? formatEnergy(displayData.peakUsage) : formatEnergy(maxUsage)}
                 </div>
                 <div className="text-sm text-gray-600">피크 사용량</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-success-600">
-                  ₩{todayData ? (todayData.cost || 0).toLocaleString() : '3,040'}
+                  ₩{displayData ? (displayData.cost || 0).toLocaleString() : Math.round(hourlyData.reduce((sum, usage) => sum + usage, 0) * 120).toLocaleString()}
                 </div>
                 <div className="text-sm text-gray-600">예상 요금</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-danger-600">
-                  {todayData ? `${peakHours.length}시간` : '3시간'}
+                  {peakHours.length}시간
                 </div>
                 <div className="text-sm text-gray-600">피크 시간대</div>
               </div>
