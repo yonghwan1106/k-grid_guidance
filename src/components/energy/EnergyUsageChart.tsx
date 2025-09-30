@@ -122,36 +122,35 @@ export default function EnergyUsageChart({
           <CardContent>
             <div className="space-y-4">
               {/* 차트 */}
-              <div className="h-48 flex items-end space-x-1">
+              <div className="h-48 flex items-end justify-between gap-0.5">
                 {hourlyData.map((usage, hour) => {
-                  const height = maxUsage > 0 ? (usage / maxUsage) * 100 : 0
+                  const heightPercent = maxUsage > 0 ? (usage / maxUsage) * 100 : 0
                   const isPeak = peakHours.includes(hour)
 
                   return (
-                    <motion.div
+                    <div
                       key={hour}
-                      className="flex-1 flex flex-col items-center"
-                      initial={{ height: 0 }}
-                      animate={{ height: 'auto' }}
-                      transition={{ delay: hour * 0.02 }}
+                      className="flex-1 flex flex-col items-center justify-end"
                     >
-                      <div
-                        className={`w-full rounded-t-sm transition-colors ${
+                      <motion.div
+                        className={`w-full rounded-t transition-colors ${
                           isPeak
                             ? 'bg-danger-500'
                             : usage > maxUsage * 0.7
                             ? 'bg-warning-500'
                             : 'bg-primary-500'
                         }`}
-                        style={{ height: `${height}%` }}
-                        title={`${hour}시: ${formatEnergy(usage, 'Wh')}`}
+                        initial={{ height: 0 }}
+                        animate={{ height: `${heightPercent}%` }}
+                        transition={{ delay: hour * 0.02, duration: 0.5 }}
+                        title={`${hour}시: ${formatEnergy(usage)}`}
                       />
                       {hour % 3 === 0 && (
                         <div className="text-xs text-gray-500 mt-1">
                           {hour}
                         </div>
                       )}
-                    </motion.div>
+                    </div>
                   )
                 })}
               </div>
@@ -189,27 +188,26 @@ export default function EnergyUsageChart({
           <CardContent>
             <div className="space-y-4">
               {/* 차트 */}
-              <div className="h-32 flex items-end space-x-2">
+              <div className="h-32 flex items-end justify-between gap-2">
                 {weekData.map((day, index) => {
-                  const height = maxWeekUsage > 0 ? (day.usage / maxWeekUsage) * 100 : 0
+                  const heightPercent = maxWeekUsage > 0 ? (day.usage / maxWeekUsage) * 100 : 0
                   const isToday = day.date.toDateString() === today.toDateString()
 
                   return (
-                    <motion.div
+                    <div
                       key={index}
                       className="flex-1 flex flex-col items-center cursor-pointer"
-                      initial={{ height: 0 }}
-                      animate={{ height: 'auto' }}
-                      transition={{ delay: index * 0.1 }}
                       onClick={() => onDateSelect?.(day.date)}
                     >
-                      <div
-                        className={`w-full rounded-t-sm transition-colors ${
+                      <motion.div
+                        className={`w-full rounded-t transition-colors ${
                           isToday
                             ? 'bg-primary-600'
                             : 'bg-primary-300 hover:bg-primary-400'
                         }`}
-                        style={{ height: `${height}%` }}
+                        initial={{ height: 0 }}
+                        animate={{ height: `${heightPercent}%` }}
+                        transition={{ delay: index * 0.1, duration: 0.5 }}
                         title={`${day.label}: ${formatEnergy(day.usage)}`}
                       />
                       <div className={`text-xs mt-1 ${
@@ -217,7 +215,7 @@ export default function EnergyUsageChart({
                       }`}>
                         {day.label}
                       </div>
-                    </motion.div>
+                    </div>
                   )
                 })}
               </div>
