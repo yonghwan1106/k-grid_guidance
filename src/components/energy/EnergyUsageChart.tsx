@@ -42,6 +42,8 @@ export default function EnergyUsageChart({
   ]
   const hourlyData = displayData?.hourlyUsage || defaultHourlyPattern
 
+  console.log('Chart data:', { hourlyData, displayData, hasData, dataLength: data?.length })
+
   const maxUsage = Math.max(...hourlyData, 0.1)
   const peakHours = displayData?.peakHours || hourlyData
     .map((usage, hour) => Math.abs(usage - maxUsage) < 0.2 ? hour : -1)
@@ -66,6 +68,8 @@ export default function EnergyUsageChart({
       })
 
   const maxWeekUsage = Math.max(...weekData.map(d => d.usage), 0.1)
+
+  console.log('Week data:', { weekData, maxWeekUsage })
 
   return (
     <div className="space-y-6">
@@ -122,40 +126,42 @@ export default function EnergyUsageChart({
           <CardContent>
             <div className="space-y-4">
               {/* 차트 */}
-              <div className="relative">
-                <div className="h-48 flex items-end justify-between gap-0.5">
+              <div className="relative h-48 border-b border-gray-200">
+                <div className="absolute inset-0 flex items-end gap-px">
                   {hourlyData.map((usage, hour) => {
-                    const maxHeight = 192 // h-48 = 192px
-                    const barHeight = maxUsage > 0 ? (usage / maxUsage) * maxHeight : 0
+                    const heightPercent = maxUsage > 0 ? (usage / maxUsage) * 100 : 0
                     const isPeak = peakHours.includes(hour)
 
                     return (
                       <div
                         key={hour}
-                        className="flex-1 flex flex-col items-center"
+                        className="flex-1 flex flex-col items-center justify-end"
+                        title={`${hour}시: ${formatEnergy(usage)}`}
                       >
-                        <motion.div
-                          className={`w-full rounded-t min-h-[2px] ${
+                        <div
+                          className={`w-full transition-all duration-500 ease-out ${
                             isPeak
                               ? 'bg-danger-500'
                               : usage > maxUsage * 0.7
                               ? 'bg-warning-500'
                               : 'bg-primary-500'
                           }`}
-                          initial={{ height: 0 }}
-                          animate={{ height: barHeight }}
-                          transition={{ delay: hour * 0.02, duration: 0.5, ease: 'easeOut' }}
-                          title={`${hour}시: ${formatEnergy(usage)}`}
+                          style={{
+                            height: `${heightPercent}%`,
+                            minHeight: usage > 0 ? '2px' : '0'
+                          }}
                         />
-                        {hour % 3 === 0 && (
-                          <div className="text-xs text-gray-500 mt-1">
-                            {hour}
-                          </div>
-                        )}
                       </div>
                     )
                   })}
                 </div>
+              </div>
+
+              {/* 시간 라벨 */}
+              <div className="flex justify-between text-xs text-gray-500 px-1">
+                {[0, 3, 6, 9, 12, 15, 18, 21].map(hour => (
+                  <div key={hour}>{hour}</div>
+                ))}
               </div>
 
               {/* 범례 */}
@@ -191,39 +197,51 @@ export default function EnergyUsageChart({
           <CardContent>
             <div className="space-y-4">
               {/* 차트 */}
-              <div className="relative">
-                <div className="h-32 flex items-end justify-between gap-2">
+              <div className="relative h-32 border-b border-gray-200">
+                <div className="absolute inset-0 flex items-end gap-2">
                   {weekData.map((day, index) => {
-                    const maxHeight = 128 // h-32 = 128px
-                    const barHeight = maxWeekUsage > 0 ? (day.usage / maxWeekUsage) * maxHeight : 0
+                    const heightPercent = maxWeekUsage > 0 ? (day.usage / maxWeekUsage) * 100 : 0
                     const isToday = day.date.toDateString() === today.toDateString()
 
                     return (
                       <div
                         key={index}
-                        className="flex-1 flex flex-col items-center cursor-pointer"
+                        className="flex-1 flex flex-col items-center cursor-pointer group"
                         onClick={() => onDateSelect?.(day.date)}
+                        title={`${day.label}: ${formatEnergy(day.usage)}`}
                       >
-                        <motion.div
-                          className={`w-full rounded-t min-h-[4px] ${
+                        <div
+                          className={`w-full transition-all duration-500 ease-out rounded-t ${
                             isToday
                               ? 'bg-primary-600'
-                              : 'bg-primary-300 hover:bg-primary-400'
+                              : 'bg-primary-300 group-hover:bg-primary-400'
                           }`}
-                          initial={{ height: 0 }}
-                          animate={{ height: barHeight }}
-                          transition={{ delay: index * 0.1, duration: 0.5, ease: 'easeOut' }}
-                          title={`${day.label}: ${formatEnergy(day.usage)}`}
+                          style={{
+                            height: `${heightPercent}%`,
+                            minHeight: day.usage > 0 ? '4px' : '0'
+                          }}
                         />
-                        <div className={`text-xs mt-1 ${
-                          isToday ? 'text-primary-600 font-medium' : 'text-gray-500'
-                        }`}>
-                          {day.label}
-                        </div>
                       </div>
                     )
                   })}
                 </div>
+              </div>
+
+              {/* 날짜 라벨 */}
+              <div className="flex justify-between text-xs px-1">
+                {weekData.map((day, index) => {
+                  const isToday = day.date.toDateString() === today.toDateString()
+                  return (
+                    <div
+                      key={index}
+                      className={`flex-1 text-center ${
+                        isToday ? 'text-primary-600 font-medium' : 'text-gray-500'
+                      }`}
+                    >
+                      {day.label}
+                    </div>
+                  )
+                })}
               </div>
 
               {/* 통계 */}
