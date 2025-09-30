@@ -124,43 +124,40 @@ export default function EnergyUsageChart({
             <CardTitle>시간대별 사용량</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-2">
               {/* 차트 */}
-              <div className="relative h-48 border-b border-gray-200">
-                <div className="absolute inset-0 flex items-end gap-px">
-                  {hourlyData.map((usage, hour) => {
-                    const heightPercent = maxUsage > 0 ? (usage / maxUsage) * 100 : 0
-                    const isPeak = peakHours.includes(hour)
+              <div className="w-full h-48 bg-gray-50 rounded p-2 flex items-end justify-between gap-1">
+                {hourlyData.map((usage, hour) => {
+                  const heightPercent = maxUsage > 0 ? (usage / maxUsage) * 100 : 0
+                  const isPeak = peakHours.includes(hour)
 
-                    return (
+                  return (
+                    <div
+                      key={hour}
+                      className="flex-1 flex items-end justify-center"
+                      title={`${hour}시: ${formatEnergy(usage)}`}
+                    >
                       <div
-                        key={hour}
-                        className="flex-1 flex flex-col items-center justify-end"
-                        title={`${hour}시: ${formatEnergy(usage)}`}
-                      >
-                        <div
-                          className={`w-full transition-all duration-500 ease-out ${
-                            isPeak
-                              ? 'bg-danger-500'
-                              : usage > maxUsage * 0.7
-                              ? 'bg-warning-500'
-                              : 'bg-primary-500'
-                          }`}
-                          style={{
-                            height: `${heightPercent}%`,
-                            minHeight: usage > 0 ? '2px' : '0'
-                          }}
-                        />
-                      </div>
-                    )
-                  })}
-                </div>
+                        className={`w-full rounded-t ${
+                          isPeak
+                            ? 'bg-danger-500'
+                            : usage > maxUsage * 0.7
+                            ? 'bg-warning-500'
+                            : 'bg-primary-500'
+                        }`}
+                        style={{
+                          height: `${Math.max(heightPercent, 2)}%`
+                        }}
+                      />
+                    </div>
+                  )
+                })}
               </div>
 
               {/* 시간 라벨 */}
-              <div className="flex justify-between text-xs text-gray-500 px-1">
+              <div className="flex justify-between text-xs text-gray-500">
                 {[0, 3, 6, 9, 12, 15, 18, 21].map(hour => (
-                  <div key={hour}>{hour}</div>
+                  <div key={hour} className="w-12 text-center">{hour}시</div>
                 ))}
               </div>
 
@@ -195,40 +192,37 @@ export default function EnergyUsageChart({
             <CardTitle>주간 사용량 트렌드</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-2">
               {/* 차트 */}
-              <div className="relative h-32 border-b border-gray-200">
-                <div className="absolute inset-0 flex items-end gap-2">
-                  {weekData.map((day, index) => {
-                    const heightPercent = maxWeekUsage > 0 ? (day.usage / maxWeekUsage) * 100 : 0
-                    const isToday = day.date.toDateString() === today.toDateString()
+              <div className="w-full h-32 bg-gray-50 rounded p-2 flex items-end justify-between gap-3">
+                {weekData.map((day, index) => {
+                  const heightPercent = maxWeekUsage > 0 ? (day.usage / maxWeekUsage) * 100 : 0
+                  const isToday = day.date.toDateString() === today.toDateString()
 
-                    return (
+                  return (
+                    <div
+                      key={index}
+                      className="flex-1 flex items-end justify-center cursor-pointer group"
+                      onClick={() => onDateSelect?.(day.date)}
+                      title={`${day.label}: ${formatEnergy(day.usage)}`}
+                    >
                       <div
-                        key={index}
-                        className="flex-1 flex flex-col items-center cursor-pointer group"
-                        onClick={() => onDateSelect?.(day.date)}
-                        title={`${day.label}: ${formatEnergy(day.usage)}`}
-                      >
-                        <div
-                          className={`w-full transition-all duration-500 ease-out rounded-t ${
-                            isToday
-                              ? 'bg-primary-600'
-                              : 'bg-primary-300 group-hover:bg-primary-400'
-                          }`}
-                          style={{
-                            height: `${heightPercent}%`,
-                            minHeight: day.usage > 0 ? '4px' : '0'
-                          }}
-                        />
-                      </div>
-                    )
-                  })}
-                </div>
+                        className={`w-full rounded-t transition-colors ${
+                          isToday
+                            ? 'bg-primary-600'
+                            : 'bg-primary-300 group-hover:bg-primary-400'
+                        }`}
+                        style={{
+                          height: `${Math.max(heightPercent, 4)}%`
+                        }}
+                      />
+                    </div>
+                  )
+                })}
               </div>
 
               {/* 날짜 라벨 */}
-              <div className="flex justify-between text-xs px-1">
+              <div className="flex justify-between text-xs">
                 {weekData.map((day, index) => {
                   const isToday = day.date.toDateString() === today.toDateString()
                   return (
