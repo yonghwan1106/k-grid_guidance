@@ -78,26 +78,37 @@ export default function EnergyPage() {
     const startDate = new Date(endDate.getTime() - 30 * 24 * 60 * 60 * 1000) // 30일 전
 
     try {
-      // 프로토타입 모드: 실제적인 데모 에너지 데이터 생성
+      // 프로토타입 모드: 실제적인 데모 에너지 데이터 (고정값)
+      // 현실적인 24시간 사용 패턴 (kWh)
+      const baseHourlyPattern = [
+        0.4, 0.3, 0.3, 0.3, 0.4, 0.5, // 0-5시 (심야)
+        1.2, 2.5, 2.8, // 6-8시 (아침 피크)
+        1.9, 1.7, 1.8, // 9-11시 (오전)
+        2.1, 2.3, // 12-13시 (점심)
+        2.8, 3.2, 3.5, 3.4, // 14-17시 (오후 피크)
+        3.1, 2.9, 2.8, // 18-20시 (저녁)
+        2.3, 1.9, 1.2 // 21-23시 (밤)
+      ]
+
+      // 30일간의 일별 변동 패턴 (0.85 ~ 1.15 범위)
+      const dailyVariations = [
+        0.95, 1.02, 0.98, 1.05, 1.08, 0.92, 0.88, // 주 1
+        0.96, 1.01, 0.99, 1.03, 1.07, 0.94, 0.90, // 주 2
+        0.97, 1.00, 1.02, 1.04, 1.06, 0.93, 0.89, // 주 3
+        0.98, 1.03, 1.01, 1.05, 1.09, 0.91, 0.87, // 주 4
+        0.96, 1.04 // 추가 2일
+      ]
+
       const demoData: EnergyUsage[] = []
       for (let i = 0; i < 30; i++) {
         const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000)
-        const hourlyUsage = Array.from({ length: 24 }, (_, hour) => {
-          // 실제적인 시간대별 사용 패턴
-          let baseUsage = 0.5 // 기본 사용량 (밤시간)
+        const dayVariation = dailyVariations[i]
 
-          if (hour >= 6 && hour < 9) baseUsage = 2.8 // 아침 시간대
-          else if (hour >= 9 && hour < 12) baseUsage = 1.8 // 오전
-          else if (hour >= 12 && hour < 14) baseUsage = 2.2 // 점심
-          else if (hour >= 14 && hour < 18) baseUsage = 3.2 // 피크시간 (오후)
-          else if (hour >= 18 && hour < 21) baseUsage = 2.9 // 저녁
-          else if (hour >= 21 && hour < 23) baseUsage = 2.1 // 밤
+        const hourlyUsage = baseHourlyPattern.map(baseValue =>
+          Math.round(baseValue * dayVariation * 100) / 100
+        )
 
-          const randomVariation = (Math.random() - 0.5) * 0.4
-          return Math.max(0.1, baseUsage + randomVariation)
-        })
-
-        const totalDaily = hourlyUsage.reduce((sum, usage) => sum + usage, 0)
+        const totalDaily = Math.round(hourlyUsage.reduce((sum, usage) => sum + usage, 0) * 100) / 100
         const maxUsage = Math.max(...hourlyUsage)
         const peakHoursList = hourlyUsage
           .map((usage, hour) => Math.abs(usage - maxUsage) < 0.1 ? hour : -1)
@@ -110,7 +121,7 @@ export default function EnergyPage() {
           totalDaily,
           peakUsage: maxUsage,
           peakHours: peakHoursList,
-          cost: totalDaily * 120 // kWh당 120원
+          cost: Math.round(totalDaily * 120) // kWh당 120원
         })
       }
       setEnergyData(demoData)

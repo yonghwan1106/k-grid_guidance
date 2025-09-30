@@ -30,24 +30,25 @@ export default function EnergyUsageChart({
   // 데이터가 없으면 가장 최근 데이터 사용
   const displayData = todayData || (hasData ? data[data.length - 1] : null)
 
-  // 시간대별 데이터 준비 - 실제 데이터 또는 기본 데모 데이터
-  const hourlyData = displayData?.hourlyUsage || Array.from({ length: 24 }, (_, hour) => {
-    let baseUsage = 0.5
-    if (hour >= 6 && hour < 9) baseUsage = 2.8
-    else if (hour >= 9 && hour < 12) baseUsage = 1.8
-    else if (hour >= 12 && hour < 14) baseUsage = 2.2
-    else if (hour >= 14 && hour < 18) baseUsage = 3.2
-    else if (hour >= 18 && hour < 21) baseUsage = 2.9
-    else if (hour >= 21 && hour < 23) baseUsage = 2.1
-    return baseUsage + (Math.random() - 0.5) * 0.4
-  })
+  // 시간대별 데이터 준비 - 실제 데이터 또는 기본 데모 데이터 (고정 패턴)
+  const defaultHourlyPattern = [
+    0.4, 0.3, 0.3, 0.3, 0.4, 0.5, // 0-5시 (심야)
+    1.2, 2.5, 2.8, // 6-8시 (아침 피크)
+    1.9, 1.7, 1.8, // 9-11시 (오전)
+    2.1, 2.3, // 12-13시 (점심)
+    2.8, 3.2, 3.5, 3.4, // 14-17시 (오후 피크)
+    3.1, 2.9, 2.8, // 18-20시 (저녁)
+    2.3, 1.9, 1.2 // 21-23시 (밤)
+  ]
+  const hourlyData = displayData?.hourlyUsage || defaultHourlyPattern
 
   const maxUsage = Math.max(...hourlyData, 0.1)
   const peakHours = displayData?.peakHours || hourlyData
     .map((usage, hour) => Math.abs(usage - maxUsage) < 0.2 ? hour : -1)
     .filter(h => h !== -1)
 
-  // 지난 7일 데이터 - 안전하게 처리
+  // 지난 7일 데이터 - 안전하게 처리 (고정 패턴)
+  const defaultWeeklyUsage = [47.36, 50.12, 48.89, 51.34, 49.76, 45.23, 43.87] // 최근 7일 kWh
   const weekData = hasData && data.length > 0
     ? data.slice(-7).map(d => ({
         date: new Date(d.date),
@@ -59,7 +60,7 @@ export default function EnergyUsageChart({
         date.setDate(date.getDate() - (6 - i))
         return {
           date,
-          usage: 45 + Math.random() * 10,
+          usage: defaultWeeklyUsage[i],
           label: date.toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })
         }
       })
