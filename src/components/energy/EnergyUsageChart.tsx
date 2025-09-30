@@ -122,37 +122,40 @@ export default function EnergyUsageChart({
           <CardContent>
             <div className="space-y-4">
               {/* 차트 */}
-              <div className="h-48 flex items-end justify-between gap-0.5">
-                {hourlyData.map((usage, hour) => {
-                  const heightPercent = maxUsage > 0 ? (usage / maxUsage) * 100 : 0
-                  const isPeak = peakHours.includes(hour)
+              <div className="relative">
+                <div className="h-48 flex items-end justify-between gap-0.5">
+                  {hourlyData.map((usage, hour) => {
+                    const maxHeight = 192 // h-48 = 192px
+                    const barHeight = maxUsage > 0 ? (usage / maxUsage) * maxHeight : 0
+                    const isPeak = peakHours.includes(hour)
 
-                  return (
-                    <div
-                      key={hour}
-                      className="flex-1 flex flex-col items-center justify-end"
-                    >
-                      <motion.div
-                        className={`w-full rounded-t transition-colors ${
-                          isPeak
-                            ? 'bg-danger-500'
-                            : usage > maxUsage * 0.7
-                            ? 'bg-warning-500'
-                            : 'bg-primary-500'
-                        }`}
-                        initial={{ height: 0 }}
-                        animate={{ height: `${heightPercent}%` }}
-                        transition={{ delay: hour * 0.02, duration: 0.5 }}
-                        title={`${hour}시: ${formatEnergy(usage)}`}
-                      />
-                      {hour % 3 === 0 && (
-                        <div className="text-xs text-gray-500 mt-1">
-                          {hour}
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
+                    return (
+                      <div
+                        key={hour}
+                        className="flex-1 flex flex-col items-center"
+                      >
+                        <motion.div
+                          className={`w-full rounded-t min-h-[2px] ${
+                            isPeak
+                              ? 'bg-danger-500'
+                              : usage > maxUsage * 0.7
+                              ? 'bg-warning-500'
+                              : 'bg-primary-500'
+                          }`}
+                          initial={{ height: 0 }}
+                          animate={{ height: barHeight }}
+                          transition={{ delay: hour * 0.02, duration: 0.5, ease: 'easeOut' }}
+                          title={`${hour}시: ${formatEnergy(usage)}`}
+                        />
+                        {hour % 3 === 0 && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            {hour}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
 
               {/* 범례 */}
@@ -188,36 +191,39 @@ export default function EnergyUsageChart({
           <CardContent>
             <div className="space-y-4">
               {/* 차트 */}
-              <div className="h-32 flex items-end justify-between gap-2">
-                {weekData.map((day, index) => {
-                  const heightPercent = maxWeekUsage > 0 ? (day.usage / maxWeekUsage) * 100 : 0
-                  const isToday = day.date.toDateString() === today.toDateString()
+              <div className="relative">
+                <div className="h-32 flex items-end justify-between gap-2">
+                  {weekData.map((day, index) => {
+                    const maxHeight = 128 // h-32 = 128px
+                    const barHeight = maxWeekUsage > 0 ? (day.usage / maxWeekUsage) * maxHeight : 0
+                    const isToday = day.date.toDateString() === today.toDateString()
 
-                  return (
-                    <div
-                      key={index}
-                      className="flex-1 flex flex-col items-center cursor-pointer"
-                      onClick={() => onDateSelect?.(day.date)}
-                    >
-                      <motion.div
-                        className={`w-full rounded-t transition-colors ${
-                          isToday
-                            ? 'bg-primary-600'
-                            : 'bg-primary-300 hover:bg-primary-400'
-                        }`}
-                        initial={{ height: 0 }}
-                        animate={{ height: `${heightPercent}%` }}
-                        transition={{ delay: index * 0.1, duration: 0.5 }}
-                        title={`${day.label}: ${formatEnergy(day.usage)}`}
-                      />
-                      <div className={`text-xs mt-1 ${
-                        isToday ? 'text-primary-600 font-medium' : 'text-gray-500'
-                      }`}>
-                        {day.label}
+                    return (
+                      <div
+                        key={index}
+                        className="flex-1 flex flex-col items-center cursor-pointer"
+                        onClick={() => onDateSelect?.(day.date)}
+                      >
+                        <motion.div
+                          className={`w-full rounded-t min-h-[4px] ${
+                            isToday
+                              ? 'bg-primary-600'
+                              : 'bg-primary-300 hover:bg-primary-400'
+                          }`}
+                          initial={{ height: 0 }}
+                          animate={{ height: barHeight }}
+                          transition={{ delay: index * 0.1, duration: 0.5, ease: 'easeOut' }}
+                          title={`${day.label}: ${formatEnergy(day.usage)}`}
+                        />
+                        <div className={`text-xs mt-1 ${
+                          isToday ? 'text-primary-600 font-medium' : 'text-gray-500'
+                        }`}>
+                          {day.label}
+                        </div>
                       </div>
-                    </div>
-                  )
-                })}
+                    )
+                  })}
+                </div>
               </div>
 
               {/* 통계 */}
