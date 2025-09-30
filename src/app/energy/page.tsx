@@ -2,23 +2,18 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { PlusIcon, ChartBarIcon, ListBulletIcon } from '@heroicons/react/24/outline'
+import { PlusIcon, ListBulletIcon } from '@heroicons/react/24/outline'
 import Button from '@/components/ui/Button'
 import MissionCard from '@/components/energy/MissionCard'
 import MissionDetail from '@/components/energy/MissionDetail'
-import EnergyUsageChart from '@/components/energy/EnergyUsageChart'
-import { getActiveMissions, getEnergyUsage, completeMission, createMission } from '@/lib/api/energy'
-import { EnergyMission, EnergyUsage, MissionType } from '@/types'
+import { EnergyMission, MissionType } from '@/types'
 import { useMissionStore } from '@/stores/missionStore'
-import { POINTS } from '@/lib/constants'
 
-type ViewMode = 'missions' | 'detail' | 'chart' | 'create'
+type ViewMode = 'missions' | 'detail' | 'create'
 
 export default function EnergyPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('missions')
   const [selectedMission, setSelectedMission] = useState<EnergyMission | null>(null)
-  const [energyData, setEnergyData] = useState<EnergyUsage[]>([])
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const [isLoading, setIsLoading] = useState(false)
 
   const { activeMissions, setActiveMissions, completeMission: completeMissionInStore } = useMissionStore()
@@ -26,7 +21,6 @@ export default function EnergyPage() {
   useEffect(() => {
     // 프로토타입 모드에서는 기본 데모 데이터 로드
     loadActiveMissions()
-    loadEnergyData()
   }, [])
 
   const loadActiveMissions = async () => {
@@ -70,63 +64,6 @@ export default function EnergyPage() {
       console.error('미션 로드 실패:', error)
     } finally {
       setIsLoading(false)
-    }
-  }
-
-  const loadEnergyData = async () => {
-    const endDate = new Date()
-    const startDate = new Date(endDate.getTime() - 30 * 24 * 60 * 60 * 1000) // 30일 전
-
-    try {
-      // 프로토타입 모드: 실제적인 데모 에너지 데이터 (고정값)
-      // 현실적인 24시간 사용 패턴 (kWh)
-      const baseHourlyPattern = [
-        0.4, 0.3, 0.3, 0.3, 0.4, 0.5, // 0-5시 (심야)
-        1.2, 2.5, 2.8, // 6-8시 (아침 피크)
-        1.9, 1.7, 1.8, // 9-11시 (오전)
-        2.1, 2.3, // 12-13시 (점심)
-        2.8, 3.2, 3.5, 3.4, // 14-17시 (오후 피크)
-        3.1, 2.9, 2.8, // 18-20시 (저녁)
-        2.3, 1.9, 1.2 // 21-23시 (밤)
-      ]
-
-      // 30일간의 일별 변동 패턴 (0.85 ~ 1.15 범위)
-      const dailyVariations = [
-        0.95, 1.02, 0.98, 1.05, 1.08, 0.92, 0.88, // 주 1
-        0.96, 1.01, 0.99, 1.03, 1.07, 0.94, 0.90, // 주 2
-        0.97, 1.00, 1.02, 1.04, 1.06, 0.93, 0.89, // 주 3
-        0.98, 1.03, 1.01, 1.05, 1.09, 0.91, 0.87, // 주 4
-        0.96, 1.04 // 추가 2일
-      ]
-
-      const demoData: EnergyUsage[] = []
-      for (let i = 0; i < 30; i++) {
-        const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000)
-        const dayVariation = dailyVariations[i]
-
-        const hourlyUsage = baseHourlyPattern.map(baseValue =>
-          Math.round(baseValue * dayVariation * 100) / 100
-        )
-
-        const totalDaily = Math.round(hourlyUsage.reduce((sum, usage) => sum + usage, 0) * 100) / 100
-        const maxUsage = Math.max(...hourlyUsage)
-        const peakHoursList = hourlyUsage
-          .map((usage, hour) => Math.abs(usage - maxUsage) < 0.1 ? hour : -1)
-          .filter(h => h !== -1)
-
-        demoData.push({
-          userId: 'demo-user',
-          date,
-          hourlyUsage,
-          totalDaily,
-          peakUsage: maxUsage,
-          peakHours: peakHoursList,
-          cost: Math.round(totalDaily * 120) // kWh당 120원
-        })
-      }
-      setEnergyData(demoData)
-    } catch (error) {
-      console.error('에너지 데이터 로드 실패:', error)
     }
   }
 
@@ -248,7 +185,7 @@ export default function EnergyPage() {
         </motion.header>
 
         {/* 내비게이션 */}
-        {(viewMode === 'missions' || viewMode === 'chart' || viewMode === 'create') && (
+        {(viewMode === 'missions' || viewMode === 'create') && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -260,13 +197,6 @@ export default function EnergyPage() {
             >
               <ListBulletIcon className="h-5 w-5 mr-2" />
               내 미션
-            </Button>
-            <Button
-              onClick={() => setViewMode('chart')}
-              variant={viewMode === 'chart' ? 'primary' : 'secondary'}
-            >
-              <ChartBarIcon className="h-5 w-5 mr-2" />
-              사용량 분석
             </Button>
             <Button
               onClick={() => setViewMode('create')}
@@ -331,16 +261,6 @@ export default function EnergyPage() {
               <MissionDetail
                 mission={selectedMission}
                 onComplete={handleMissionComplete}
-              />
-            </div>
-          )}
-
-          {viewMode === 'chart' && (
-            <div className="max-w-4xl mx-auto">
-              <EnergyUsageChart
-                data={energyData}
-                selectedDate={selectedDate}
-                onDateSelect={setSelectedDate}
               />
             </div>
           )}
