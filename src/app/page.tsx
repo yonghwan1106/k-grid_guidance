@@ -54,7 +54,7 @@ export default function HomePage() {
           </p>
 
           {/* CTA 버튼 */}
-          <div className="space-x-4">
+          <div className="flex flex-wrap justify-center gap-4">
             <Link href="/safety">
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -73,6 +73,17 @@ export default function HomePage() {
                 프로젝트 소개
               </motion.button>
             </Link>
+            <a href="/presentation/index.html" target="_blank" rel="noopener noreferrer">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="relative overflow-hidden text-lg px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  📊 발표자료 보기
+                </span>
+              </motion.button>
+            </a>
           </div>
         </motion.header>
 

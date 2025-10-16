@@ -113,9 +113,17 @@ export default function Navigation() {
               })}
             </div>
 
-            {/* 데모 정보 */}
+            {/* 프레젠테이션 링크 */}
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-500 font-medium">프로토타입 데모</span>
+              <a
+                href="/presentation/index.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-300 hover:scale-105"
+              >
+                <span>📊</span>
+                <span className="text-sm">발표자료</span>
+              </a>
             </div>
           </div>
         </div>
@@ -234,7 +242,20 @@ export default function Navigation() {
                   )
                 })}
 
-                <div className="pt-4 border-t border-gray-200">
+                <div className="pt-4 border-t border-gray-200 space-y-3">
+                  <a
+                    href="/presentation/index.html"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center space-x-3 px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all"
+                  >
+                    <span className="text-2xl">📊</span>
+                    <div>
+                      <div className="font-semibold">발표자료 보기</div>
+                      <div className="text-xs text-blue-100">프레젠테이션 (10분)</div>
+                    </div>
+                  </a>
+
                   <div className="flex items-center space-x-3 px-4 py-3">
                     <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
                       <span className="text-white font-bold text-sm">데모</span>
