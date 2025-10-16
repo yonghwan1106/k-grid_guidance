@@ -24,8 +24,10 @@
 body {
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-attachment: fixed;
     min-height: 100vh;
     overflow-x: hidden;
+    scroll-behavior: smooth;
 }
 
 /* Navigation Bar */
@@ -34,11 +36,14 @@ body {
     top: 0;
     left: 0;
     right: 0;
-    background: rgba(15, 23, 42, 0.95);
-    backdrop-filter: blur(10px);
+    background: rgba(15, 23, 42, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     padding: 1rem 2rem;
     z-index: 1000;
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
 }
 
 .nav-content {
@@ -103,11 +108,12 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     background: white;
-    border-radius: 1rem;
+    border-radius: 1.5rem;
     padding: 3rem;
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 20px 60px -10px rgba(0, 0, 0, 0.2);
     min-height: 600px;
-    animation: slideIn 0.5s ease-out;
+    animation: slideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(102, 126, 234, 0.1);
 }
 
 .slide.active {
@@ -117,11 +123,11 @@ body {
 @keyframes slideIn {
     from {
         opacity: 0;
-        transform: translateX(20px);
+        transform: translateY(30px) scale(0.98);
     }
     to {
         opacity: 1;
-        transform: translateX(0);
+        transform: translateY(0) scale(1);
     }
 }
 
@@ -142,8 +148,35 @@ body {
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 2rem;
-    border-bottom: 4px solid var(--primary-blue);
+    border-bottom: 4px solid transparent;
+    background: linear-gradient(to right, var(--primary-blue) 0%, var(--primary-blue) 60%, transparent 100%) bottom;
+    background-size: 100% 4px;
+    background-repeat: no-repeat;
     padding-bottom: 1rem;
+    position: relative;
+}
+
+.slide-title::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 60%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-blue), var(--light-blue));
+    border-radius: 2px;
+    animation: slideInTitle 0.6s ease-out 0.3s both;
+}
+
+@keyframes slideInTitle {
+    from {
+        width: 0%;
+        opacity: 0;
+    }
+    to {
+        width: 60%;
+        opacity: 1;
+    }
 }
 
 /* Title Slide */
@@ -315,14 +348,32 @@ body {
     padding: 2rem;
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     border-radius: 1rem;
-    border: 2px solid transparent;
-    transition: all 0.3s ease;
+    border: 2px solid rgba(226, 232, 240, 0.8);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
 }
 
 .feature-card:hover {
     border-color: var(--primary-blue);
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px -10px rgba(37, 99, 235, 0.2);
+}
+
+.feature-card:hover::before {
+    opacity: 1;
 }
 
 .feature-icon {
@@ -1424,22 +1475,45 @@ body {
     background: rgba(15, 23, 42, 0.95);
     color: white;
     border: none;
-    border-radius: 0.5rem;
+    border-radius: 0.75rem;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translate(-50%, -50%);
+    transition: width 0.4s ease, height 0.4s ease;
+}
+
+.nav-button:hover::before {
+    width: 300px;
+    height: 300px;
 }
 
 .nav-button:hover {
-    background: var(--primary-blue);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow);
+    background: linear-gradient(135deg, var(--primary-blue), var(--light-blue));
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px -10px rgba(37, 99, 235, 0.4);
 }
 
 .nav-button:active {
-    transform: translateY(0);
+    transform: translateY(-1px);
 }
 
 /* Responsive Design */
@@ -1486,5 +1560,317 @@ body {
     .nav-links {
         flex-direction: column;
         gap: 0.5rem;
+    }
+}
+
+/* Additional UI/UX Enhancements */
+
+/* Smooth fade-in for content elements */
+.slide-content > * {
+    animation: fadeInUp 0.6s ease-out both;
+    animation-delay: calc(var(--animation-order, 0) * 0.1s);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Enhance icon animations */
+.feature-icon, .problem-icon, .esg-icon, .segment-icon, .value-icon {
+    transition: transform 0.3s ease;
+    display: inline-block;
+}
+
+.feature-card:hover .feature-icon,
+.segment-card:hover .segment-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* Improve hover effects on cards */
+.problem-box, .mission-card, .metric-card {
+    transition: all 0.3s ease;
+}
+
+.problem-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.15);
+}
+
+.mission-card:hover {
+    transform: translateY(-3px);
+}
+
+.metric-card:hover {
+    transform: translateY(-3px);
+}
+
+/* Add pulse animation to important CTAs */
+.prototype-cta, .cta-button-large {
+    animation: subtle-pulse 3s ease-in-out infinite;
+}
+
+@keyframes subtle-pulse {
+    0%, 100% {
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(37, 99, 235, 0.5);
+    }
+}
+
+/* Enhance badge appearance */
+.feature-tag, .mission-type, .innovation-badge, .title-badge {
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+    transition: all 0.3s ease;
+}
+
+.feature-tag:hover, .mission-type:hover {
+    transform: scale(1.05);
+}
+
+/* Improve readability with better line heights */
+p, li {
+    line-height: 1.8;
+}
+
+/* Add subtle gradient overlays to highlight boxes */
+.highlight-box, .ai-analysis-box, .esg-impact-summary, .phase-goal {
+    position: relative;
+    overflow: hidden;
+}
+
+.highlight-box::before, .ai-analysis-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.03) 0%, rgba(118, 75, 162, 0.03) 100%);
+    pointer-events: none;
+}
+
+/* Enhance stat numbers with gradient */
+.stat-number, .metric-value {
+    position: relative;
+    display: inline-block;
+}
+
+/* Add loading state for slides */
+.slide.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* Improve focus states for accessibility */
+.nav-button:focus,
+.prototype-link:focus,
+.prototype-cta:focus,
+.cta-button-large:focus {
+    outline: 3px solid rgba(37, 99, 235, 0.5);
+    outline-offset: 2px;
+}
+
+/* Add smooth transitions to all interactive elements */
+a, button, .card, .box {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhance table/grid layouts with hover effects */
+.point-row:hover, .badge-item:hover {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+    transform: translateX(3px);
+}
+
+/* Add depth to roadmap phases */
+.roadmap-phase {
+    transition: all 0.3s ease;
+}
+
+.roadmap-phase:hover {
+    transform: scale(1.02);
+    box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.2);
+}
+
+/* Smooth scrollbar styling */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.1);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, var(--primary-blue), var(--light-blue));
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-blue);
+    background-clip: content-box;
+}
+
+/* Add shine effect to prototype link */
+.prototype-link {
+    position: relative;
+    overflow: hidden;
+}
+
+.prototype-link::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    bottom: -50%;
+    left: -50%;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 50%, rgba(255, 255, 255, 0) 100%);
+    transform: rotateZ(45deg) translateY(-100%);
+    transition: transform 0.6s ease;
+}
+
+.prototype-link:hover::after {
+    transform: rotateZ(45deg) translateY(100%);
+}
+
+/* Enhance z-index hierarchy */
+.nav-bar {
+    z-index: 1000;
+}
+
+.nav-controls {
+    z-index: 999;
+}
+
+#progress-bar {
+    z-index: 1001;
+}
+
+/* Add subtle animation to level badges */
+.level-badge {
+    transition: all 0.3s ease;
+}
+
+.level-item:hover .level-badge {
+    transform: scale(1.1) rotate(360deg);
+    transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Improve visual feedback on browser mockup */
+.browser-mockup {
+    transition: all 0.3s ease;
+}
+
+.browser-mockup:hover {
+    transform: scale(1.02);
+    box-shadow: 0 30px 60px -10px rgba(0, 0, 0, 0.2);
+}
+
+/* Add gradient text effect to important numbers */
+.stat-number {
+    font-weight: 900;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradient-shift 3s ease-in-out infinite;
+}
+
+@keyframes gradient-shift {
+    0%, 100% {
+        background-position: 0% center;
+    }
+    50% {
+        background-position: 100% center;
+    }
+}
+
+/* Enhance transformation animations */
+.transform-from p, .transform-to p {
+    font-size: 1.1rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.transformation:hover .transform-from p {
+    transform: scale(0.95);
+}
+
+.transformation:hover .transform-to p {
+    transform: scale(1.05);
+}
+
+/* Add micro-interactions to phase headers */
+.phase-header {
+    position: relative;
+    overflow: hidden;
+}
+
+.phase-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.roadmap-phase:hover .phase-header::before {
+    left: 100%;
+}
+
+/* Improve market region cards */
+.market-region {
+    transition: all 0.3s ease;
+}
+
+.market-region:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary-blue);
+    box-shadow: 0 15px 40px -10px rgba(37, 99, 235, 0.2);
+}
+
+/* Add stagger animation delay classes */
+.slide-content > *:nth-child(1) { --animation-order: 1; }
+.slide-content > *:nth-child(2) { --animation-order: 2; }
+.slide-content > *:nth-child(3) { --animation-order: 3; }
+.slide-content > *:nth-child(4) { --animation-order: 4; }
+.slide-content > *:nth-child(5) { --animation-order: 5; }
+
+/* Dark mode support (optional enhancement) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --text-primary: #e2e8f0;
+        --text-secondary: #94a3b8;
+    }
+}
+
+/* Print styles */
+@media print {
+    .nav-bar, .nav-controls, #progress-bar, #presentation-timer, #slide-notes {
+        display: none !important;
+    }
+
+    .slide {
+        page-break-after: always;
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+
+    body {
+        background: white;
     }
 }
