@@ -75,6 +75,29 @@ function showSlide(slideNumber) {
         setTimeout(() => {
             slides[slideNumber - 1].style.animation = 'slideIn 0.5s ease-out';
         }, 10);
+
+        // Handle video playback for slide 1
+        handleVideoPlayback(slideNumber);
+    }
+}
+
+// Handle video playback
+function handleVideoPlayback(slideNumber) {
+    const introVideo = document.getElementById('introVideo');
+    if (!introVideo) return;
+
+    if (slideNumber === 1) {
+        // When on slide 1, ensure video is playing
+        const videoSrc = introVideo.src;
+        if (!videoSrc.includes('autoplay=1')) {
+            introVideo.src = videoSrc.replace('autoplay=0', 'autoplay=1');
+        }
+    } else {
+        // When leaving slide 1, pause video by removing autoplay
+        const videoSrc = introVideo.src;
+        if (videoSrc.includes('autoplay=1')) {
+            introVideo.src = videoSrc.replace('autoplay=1', 'autoplay=0');
+        }
     }
 }
 
